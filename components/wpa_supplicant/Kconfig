@@ -1,0 +1,23 @@
+menu "Supplicant"
+
+    config WPA_PBKDF_RUN_IN_LOW_PRIORITY_TASK
+        bool "Call pbkdf2_sha1() in low priority task"
+        default n
+        help
+            If this option is enabled, the pbkdf2_sha1() will be run in a low priority task.
+            Otherwise, it will be run in the context of the caller task.
+
+            pbkdf2_sha1() is a CPU time costly API and it's used by WiFi to calculate PMK 
+            for STA and AP. Since WiFi task has a very high priority, it may have side effect
+            to other task if pbkdf2_sha1() directly runs in context of WiFi task.  E.g. in 
+            WiFi/BT coexist scenario, it may impact the audio playing of BT.
+
+    config WPA_PBKDF_TASK_PRIORITY
+        int "Task priority"
+        depends on WPA_PBKDF_RUN_IN_LOW_PRIORITY_TASK
+        range 2 22
+        default 10
+        help
+            Task priority for running pbkdf2_sha1().
+
+endmenu
